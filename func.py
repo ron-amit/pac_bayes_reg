@@ -2,14 +2,16 @@ import torch
 from torch import tensor
 from math import sqrt, log, pi
 
-def loss(h: tensor,x: tensor,y: tensor):
+
+def loss(h: tensor, x: tensor, y: tensor) -> tensor:
     assert h.n_dim == 1
     assert x.n_dim == 2  # [n_samp x d]
     assert y.n_dim == 1
     assert y.shape[0] == x.shape[0]
     return torch.square(torch.matmul(x, h) - y) / 4
 
-def uc_bound(m: int, delta: float, d: int):
+
+def uc_bound(m: int, delta: float, d: int) -> float:
     assert delta > 0
     tmp1 = (5 * d + 2 * log(6 / delta)) / m
     bnd = sqrt(log((6 / delta) / (32 * m))) + sqrt((d + 2 * d * sqrt(log(3 / delta)) + 2 * log(3 / delta)) / (4 * m)) \
@@ -17,7 +19,7 @@ def uc_bound(m: int, delta: float, d: int):
     return bnd
 
 
-def uc_grad_bound(m: int, delta: float, d: int, r: float):
+def uc_grad_bound(m: int, delta: float, d: int, r: float) -> float:
     assert delta > 0
     tmp1 = (5 * d + 2 * log(4 / delta)) / m
     bnd = 16 * r * max(sqrt(tmp1), tmp1) + r * sqrt((d + 2 * d * sqrt(log(2 / delta)) + 2 * log(2 / delta)) / (4 * m))
@@ -25,7 +27,7 @@ def uc_grad_bound(m: int, delta: float, d: int, r: float):
 
 
 def wasserstein_gauss_proj(mu_q: tensor, mu_p: tensor, sigma_q: tensor, sigma_p: tensor, d: int,
-                           r: float):
+                           r: float) -> tensor:
     assert mu_q.n_dim == 1
     assert mu_q.shape[0] == d
     assert sigma_q.n_elem == 1
@@ -38,7 +40,8 @@ def wasserstein_gauss_proj(mu_q: tensor, mu_p: tensor, sigma_q: tensor, sigma_p:
     return w_bnd
 
 
-def wpb_bound(m: int, delta: float, mu_q: tensor, mu_p: tensor, sigma_q: tensor, sigma_p: tensor, d: int, r: float):
+def wpb_bound(m: int, delta: float, mu_q: tensor, mu_p: tensor, sigma_q: tensor, sigma_p: tensor, d: int,
+              r: float) -> tensor:
     assert m > 1
     u = uc_bound(m, delta / 4, d)
     ug = uc_grad_bound(m, delta / 4, d, r)
