@@ -16,8 +16,8 @@ def draw_uniformly_in_ball(d: int, r: float, n: int = 1) -> tensor:
     assert r > 0
     samp_vecs = torch.randn(n, d)
     samp_vecs = normalize(samp_vecs, dim=1)
-    samp_radius = r * torch.pow(torch.rand(n), 1 / d)
-    samp_vecs *= samp_radius
+    samp_radius = r * torch.pow(torch.rand(n, 1), 1 / d)
+    samp_vecs = samp_radius * samp_vecs
     return samp_vecs
 
 
@@ -26,7 +26,7 @@ class LearningTask:
                  noise_max: float = 0.01):
         self.d = d
         self.x_max_radius = x_max_radius
-        self.g_vec = draw_uniformly_in_ball(d, g_vec_max_radius)
+        self.g_vec = draw_uniformly_in_ball(d, g_vec_max_radius).squeeze()
         self.noise_min = noise_min
         self.noise_max = noise_max
 
