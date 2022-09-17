@@ -22,7 +22,7 @@ class PacBayesLinReg(nn.Module):
 
     def empirical_risk(self, X: tensor, Y: tensor) -> tensor:
         n_samp = X.shape[0]
-        er = (torch.sum((X @ self.mu_Q - Y)**2) + self.sigma_Q**2 * linalg.norm(X, 'fro'))/(4 * n_samp)
+        er = (torch.sum((X @ self.mu_Q - Y)**2) + self.sigma_Q**2 * torch.sum(X[:]**2))/(4 * n_samp)
         return er
 
 
