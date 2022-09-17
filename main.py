@@ -21,6 +21,9 @@ device = torch.device("cuda" if args.cuda else "cpu")
 
 if args.cuda:
     torch.set_default_tensor_type(torch.cuda.DoubleTensor)
+else:
+    torch.set_default_tensor_type(torch.DoubleTensor)
+
 # ---------------------------------------------------------------------------------------#
 d = 20
 g_vec_max_radius = 0.1
