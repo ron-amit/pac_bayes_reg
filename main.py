@@ -1,6 +1,7 @@
 import argparse
 import torch
 from data import LearningTask
+from model import PacBayesLinReg
 
 # ---------------------------------------------------------------------------------------#
 parser = argparse.ArgumentParser()
@@ -17,11 +18,24 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 torch.manual_seed(args.seed)
 device = torch.device("cuda" if args.cuda else "cpu")
-# ---------------------------------------------------------------------------------------#
-task = LearningTask(d=20, g_vec_max_radius=0.1, x_max_radius=0.1, noise_min=-0.01, noise_max=0.01)
-n_train_samp = 50
-train_set = task.get_dataset(n_train_samp)
 
-model = VAE().to(device)
+if args.cuda:
+    torch.set_default_tensor_type(torch.cuda.DoubleTensor)
+# ---------------------------------------------------------------------------------------#
+d = 20
+g_vec_max_radius = 0.1
+x_max_radius = 0.1
+noise_min = -0.01
+noise_max = 0.01
+sigma_Q = 1e-3
+mu_Q_max_radius = 0.1
+# ---------------------------------------------------------------------------------------#
+task = LearningTask(d, g_vec_max_radius, x_max_radius, noise_min, noise_max)
+n_train_samp = 50
+X, Y = task.get_dataset(n_train_samp)
+
+model = PacBayesLinReg(d, mu_Q_max_radius, sigma_Q).to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+
+print(model.empirical_risk(X, Y))
 # ---------------------------------------------------------------------------------------#
