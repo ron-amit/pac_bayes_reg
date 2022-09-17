@@ -26,18 +26,22 @@ else:
 
 # ---------------------------------------------------------------------------------------#
 d = 20
+r = 1.
 g_vec_max_radius = 0.1
 x_max_radius = 0.1
 noise_min = -0.01
 noise_max = 0.01
 sigma_Q = 1e-3
 mu_Q_max_radius = 0.1
+mu_P = torch.zeros(d)
+sigma_P = 1e-3
+
 # ---------------------------------------------------------------------------------------#
 task = LearningTask(d, g_vec_max_radius, x_max_radius, noise_min, noise_max)
 n_train_samp = 50
 X, Y = task.get_dataset(n_train_samp)
 
-model = PacBayesLinReg(d, mu_Q_max_radius, sigma_Q).to(device)
+model = PacBayesLinReg(d, r, mu_Q_max_radius, sigma_Q, mu_P, sigma_P).to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 print(model.empirical_risk(X, Y))

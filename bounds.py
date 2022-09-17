@@ -18,7 +18,7 @@ def uc_grad_bound(m: int, delta: float, d: int, r: float) -> float:
     return bnd
 
 
-def wasserstein_gauss_proj(mu_q: tensor, mu_p: tensor, sigma_q: tensor, sigma_p: tensor, d: int,
+def wasserstein_gauss_proj(mu_q: tensor, sigma_q: tensor, mu_p: tensor, sigma_p: tensor, d: int,
                            r: float) -> tensor:
     assert mu_q.n_dim == 1
     assert mu_q.shape[0] == d
@@ -32,11 +32,11 @@ def wasserstein_gauss_proj(mu_q: tensor, mu_p: tensor, sigma_q: tensor, sigma_p:
     return w_bnd
 
 
-def wpb_bound(m: int, delta: float, mu_q: tensor, mu_p: tensor, sigma_q: tensor, sigma_p: tensor, d: int,
+def wpb_bound(m: int, delta: float, mu_q: tensor, sigma_q: tensor, mu_p: tensor, sigma_p: tensor, d: int,
               r: float) -> tensor:
     assert m > 1
     u = uc_bound(m, delta / 4, d)
     ug = uc_grad_bound(m, delta / 4, d, r)
-    w_bnd = wasserstein_gauss_proj(mu_q, mu_p, sigma_q, sigma_p, d, r)
+    w_bnd = wasserstein_gauss_proj(mu_q, sigma_q, mu_p, sigma_p, d, r)
     bnd = torch.sqrt(2 * u * ug * w_bnd + log(2 * m / delta) / (2 * (m - 1)))
     return bnd
