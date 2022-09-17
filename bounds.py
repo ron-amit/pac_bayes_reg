@@ -3,14 +3,6 @@ from torch import tensor
 from math import sqrt, log, pi
 
 
-def loss(h: tensor, x: tensor, y: tensor) -> tensor:
-    assert h.n_dim == 1
-    assert x.n_dim == 2  # [n_samp x d]
-    assert y.n_dim == 1
-    assert y.shape[0] == x.shape[0]
-    return torch.square(torch.matmul(x, h) - y) / 4
-
-
 def uc_bound(m: int, delta: float, d: int) -> float:
     assert delta > 0
     tmp1 = (5 * d + 2 * log(6 / delta)) / m
