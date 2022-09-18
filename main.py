@@ -1,6 +1,7 @@
 import argparse
 import torch
 from torch.utils.data import DataLoader
+from utils import set_device
 from data import LearningTask
 from model import PacBayesLinReg
 
@@ -20,11 +21,7 @@ parser.add_argument('--log-interval', type=int, default=10, metavar='N',
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 torch.manual_seed(args.seed)
-device = torch.device("cuda" if args.cuda else "cpu")
-if args.cuda:
-    torch.set_default_tensor_type(torch.cuda.DoubleTensor)
-else:
-    torch.set_default_tensor_type(torch.DoubleTensor)
+device = set_device(args)
 # ---------------------------------------------------------------------------------------#
 d = 20
 r = 1.

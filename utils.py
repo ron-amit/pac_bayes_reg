@@ -23,3 +23,11 @@ def draw_uniformly_in_ball(d: int, r: float, n: int = 1) -> tensor:
     return samp_vecs
 
 
+def set_device(args):
+    device = torch.device("cuda" if args.cuda else "cpu")
+    if args.cuda:
+        torch.set_default_tensor_type(torch.cuda.DoubleTensor)
+    else:
+        torch.set_default_tensor_type(torch.DoubleTensor)
+    return device
+
