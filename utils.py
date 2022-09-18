@@ -1,6 +1,6 @@
 import torch
-from torch import tensor
 from torch.nn.functional import normalize
+from torch import tensor
 
 
 def draw_uniformly_in_ball(d: int, r: float, n: int = 1) -> tensor:
@@ -21,3 +21,5 @@ def draw_uniformly_in_ball(d: int, r: float, n: int = 1) -> tensor:
     samp_radius = r * torch.pow(torch.rand(n, 1), 1 / d)
     samp_vecs = samp_radius * samp_vecs
     return samp_vecs
+
+

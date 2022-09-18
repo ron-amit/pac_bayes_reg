@@ -1,4 +1,6 @@
 import torch
+from torch import tensor
+from torch.utils.data import Dataset
 
 from utils import draw_uniformly_in_ball
 
@@ -17,4 +19,17 @@ class LearningTask:
         noise = self.noise_min + torch.rand(n_samples) * (self.noise_max - self.noise_max)
         Y = torch.matmul(X, self.g_vec) + noise
         assert torch.all(torch.abs(Y) <= 1)
-        return X, Y
+        dataset = PairsDataset(X, Y)
+        return dataset
+
+
+class PairsDataset(Dataset):
+    def __init__(self, X: tensor, Y: tensor):
+        self.X = X
+        self.Y = Y
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.Y[idx]
+
+    def __len__(self):
+        return len(self.X)
