@@ -31,3 +31,5 @@ def set_device(args):
         torch.set_default_tensor_type(torch.DoubleTensor)
     return device
 
+def to_device(device, *args):
+    return [arg.to(device) for arg in args]

@@ -1,7 +1,7 @@
 import argparse
 import torch
 from torch.utils.data import DataLoader
-from utils import set_device
+from utils import set_device, to_device
 from data import LearningTask
 from model import PacBayesLinReg
 
@@ -52,8 +52,7 @@ for epoch in range(1, args.epochs + 1):
     model.train()
     train_loss = 0
     for batch_idx, (X, Y) in enumerate(train_loader):
-        X = X.to(device)
-        Y = Y.to(device)
+        to_device(device, X, Y)
         optimizer.zero_grad()
         loss = model.wpb_risk_bound(X, Y, delta)
         loss.backward()
@@ -73,8 +72,7 @@ n_samp_test = 10000
 test_loader = DataLoader(task.get_dataset(n_samp_test), batch_size=batch_size, shuffle=False)
 with torch.no_grad():
     for i, (X, Y) in enumerate(test_loader):
-        X = X.to(device)
-        Y = Y.to(device)
+        to_device(device, X, Y)
         loss = model.wpb_risk_bound(X, Y, delta)
         test_loss += loss.item()
 test_loss /= n_samp_test
