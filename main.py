@@ -45,7 +45,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 # ---------------------------------------------------------------------------------------#
 # Training loop
 # ---------------------------------------------------------------------------------------#
-n_train_samp = 50
+n_train_samp = 1000
 train_data = task.get_dataset(n_train_samp)
 
 print(model.empirical_risk(train_data.X, train_data.Y))
