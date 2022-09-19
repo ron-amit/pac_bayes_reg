@@ -1,0 +1,22 @@
+
+# ---------------------------------------------------------------------------------------#
+# # Gap figure
+# # ---------------------------------------------------------------------------------------#
+# neg_gap = -(test_risk - train_risk)
+# mean_gap = neg_gap.mean(axis=1)
+# std_gap = neg_gap.std(axis=1)
+# ci_factor = 1.96 / math.sqrt(n_reps)  # 95% confidence interval factor
+# plt.figure()
+# plt.plot(n_samp_grid, mean_gap, marker='o', label='Neg. Gen. Gap', color='blue')
+# plt.fill_between(n_samp_grid, mean_gap - std_gap * ci_factor,
+#                  mean_gap + std_gap * ci_factor,
+#                  color='blue', alpha=0.2)
+#
+# plt.legend()
+# plt.grid(True)
+# plt.xlabel('Number of samples')
+# plt.ylabel('Average Episode Return')
+# save_PDF = True
+# if save_PDF:
+#     save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S_risk'), base_path='./figures')
+# plt.show()

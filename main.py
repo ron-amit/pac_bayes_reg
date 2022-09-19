@@ -48,12 +48,12 @@ for i_rep in range(n_reps):
         args.n_train_samp = n_samp
         train_risk[i_grid, i_rep], test_risk[i_grid, i_rep] = run_learning(args)
 # ---------------------------------------------------------------------------------------#
-
+# Risk figure
+# ---------------------------------------------------------------------------------------#
 mean_train_risk = train_risk.mean(axis=1)
 std_train_risk = train_risk.std(axis=1)
 mean_test_risk = test_risk.mean(axis=1)
 std_test_risk = test_risk.std(axis=1)
-# Plot reward
 ci_factor = 1.96 / math.sqrt(n_reps)  # 95% confidence interval factor
 plt.figure()
 plt.plot(n_samp_grid, mean_train_risk, marker='o', label='Test risk', color='blue')
@@ -70,5 +70,5 @@ plt.xlabel('Number of samples')
 plt.ylabel('Average Episode Return')
 save_PDF = True
 if save_PDF:
-    save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S'), base_path='./figures')
+    save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S_risk'), base_path='./figures')
 plt.show()
