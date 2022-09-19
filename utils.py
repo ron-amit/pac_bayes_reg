@@ -31,5 +31,19 @@ def set_device(args):
         torch.set_default_tensor_type(torch.DoubleTensor)
     return device
 
+
 def to_device(device, *args):
     return [arg.to(device) for arg in args]
+
+
+def run_evaluation(model, args, data_loader):
+    model.eval()
+    avg_loss = 0
+    n_samp = len(data_loader.dataset)
+    with torch.no_grad():
+        for i, (X, Y) in enumerate(data_loader):
+            to_device(args.device, X, Y)
+            loss = model.wpb_risk_bound(X, Y, args.delta)
+            avg_loss += loss.item()
+    avg_loss /= n_samp
+    return avg_loss

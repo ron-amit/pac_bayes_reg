@@ -1,7 +1,7 @@
-import argparse
+
 import torch
 from torch.utils.data import DataLoader
-from utils import set_device, to_device
+from utils import to_device, run_evaluation
 from data import LearningTask
 from model import PacBayesLinReg
 
@@ -13,7 +13,7 @@ def run_learning(args):
     # ---------------------------------------------------------------------------------------#
     # Training loop
     # ---------------------------------------------------------------------------------------#
-    n_train_samp = 1000
+    n_train_samp = args.n_train_samp
     train_data = task.get_dataset(n_train_samp)
 
     print(model.empirical_risk(train_data.X, train_data.Y))
@@ -30,6 +30,7 @@ def run_learning(args):
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
+            model.project_to_domain()
             if batch_idx % args.log_interval == 0:
                 print(f'Train Epoch: {epoch} [{batch_idx * args.batch_size}/{n_train_samp}]'
                       f' ({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item() / args.batch_size:.6f}')
@@ -38,15 +39,11 @@ def run_learning(args):
     # ---------------------------------------------------------------------------------------#
     # Evaluate final model
     # ---------------------------------------------------------------------------------------#
-    model.eval()
-    test_loss = 0
+    print('-'*100)
+    train_err = run_evaluation(model, args, train_loader)
+    print(f'Final training error: {train_err}, (number of training samples: {n_train_samp})')
     n_samp_test = 10000
     test_loader = DataLoader(task.get_dataset(n_samp_test), batch_size=args.batch_size, shuffle=False)
-    with torch.no_grad():
-        for i, (X, Y) in enumerate(test_loader):
-            to_device(args.device, X, Y)
-            loss = model.wpb_risk_bound(X, Y, args.delta)
-            test_loss += loss.item()
-    test_loss /= n_samp_test
-    print('====> Test set loss: {:.4f}'.format(test_loss))
+    test_err = run_evaluation(model, args, test_loader)
+    print(f'Final test error: {test_err}, (estimated from {n_samp_test} samples)')
     # ---------------------------------------------------------------------------------------#

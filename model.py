@@ -25,6 +25,12 @@ class PacBayesLinReg(nn.Module):
         self.sigma_P = sigma_P
         self.d = d
 
+    def project_to_domain(self):
+        with torch.no_grad():
+            mu_norm_sqr = torch.sum(self.mu_Q ** 2)
+            if mu_norm_sqr > self.r:
+                self.mu_Q *= self.r / torch.sqrt(mu_norm_sqr)
+
     def empirical_risk(self, X: tensor, Y: tensor) -> tensor:
         n_samp = X.shape[0]
         return (torch.sum((X @ self.mu_Q - Y) ** 2) + self.sigma_Q ** 2 * torch.sum(X[:] ** 2)) / (4 * n_samp)
@@ -39,3 +45,4 @@ class PacBayesLinReg(nn.Module):
         emp_risk = self.empirical_risk(X, Y)
         gap_bound = wpb_bound(n_samp, delta, self.mu_Q, self.sigma_Q,  self.mu_P, self.sigma_P, self.d, self.r)
         return emp_risk + gap_bound
+

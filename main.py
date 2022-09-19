@@ -4,8 +4,6 @@ from utils import set_device
 from learn import run_learning
 # ---------------------------------------------------------------------------------------#
 parser = argparse.ArgumentParser()
-parser.add_argument('--batch-size', type=int, default=32, metavar='N',
-                    help='input batch size for training')
 parser.add_argument('--epochs', type=int, default=100, metavar='N',
                     help='number of epochs to train')
 parser.add_argument('--no-cuda', action='store_true', default=False,
@@ -31,6 +29,7 @@ args.mu_P = torch.zeros(args.d)
 args.sigma_P = 1e-3
 args.batch_size = 64
 args.delta = 0.05
+args.n_train_samp = 100
 # ---------------------------------------------------------------------------------------#
 run_learning(args)
 # ---------------------------------------------------------------------------------------#
