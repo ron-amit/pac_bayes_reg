@@ -1,5 +1,4 @@
 import os
-import json
 import matplotlib.pyplot as plt
 import torch
 from torch.nn.functional import normalize
@@ -37,19 +36,6 @@ def set_device(args):
 
 def to_device(device, *args):
     return [arg.to(device) for arg in args]
-
-
-def run_evaluation(model, args, data_loader):
-    model.eval()
-    avg_loss = 0
-    n_samp = len(data_loader.dataset)
-    with torch.no_grad():
-        for i, (X, Y) in enumerate(data_loader):
-            to_device(args.device, X, Y)
-            loss = model.wpb_risk_bound(X, Y, args.delta)
-            avg_loss += loss.item()
-    avg_loss /= n_samp
-    return avg_loss
 
 
 def save_fig(run_name, base_path='./'):

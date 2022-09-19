@@ -1,7 +1,7 @@
 import torch
 from torch import tensor
 import torch.nn as nn
-from utils import draw_uniformly_in_ball
+from utils import draw_uniformly_in_ball, to_device
 from bounds import wpb_bound
 from data import PairsDataset
 
@@ -46,3 +46,14 @@ class PacBayesLinReg(nn.Module):
         gap_bound = wpb_bound(n_samp, delta, self.mu_Q, self.sigma_Q,  self.mu_P, self.sigma_P, self.d, self.r)
         return emp_risk + gap_bound
 
+    def run_evaluation(self, args, data_loader):
+        self.eval()
+        avg_loss = 0
+        n_samp = len(data_loader.dataset)
+        with torch.no_grad():
+            for i, (X, Y) in enumerate(data_loader):
+                to_device(args.device, X, Y)
+                loss = self.wpb_risk_bound(X, Y, args.delta)
+                avg_loss += loss.item()
+        avg_loss /= n_samp
+        return avg_loss
