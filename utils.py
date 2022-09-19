@@ -1,3 +1,6 @@
+import os
+import json
+import matplotlib.pyplot as plt
 import torch
 from torch.nn.functional import normalize
 from torch import tensor
@@ -47,3 +50,29 @@ def run_evaluation(model, args, data_loader):
             avg_loss += loss.item()
     avg_loss /= n_samp
     return avg_loss
+
+
+def save_fig(run_name, base_path='./'):
+    ensure_dir(base_path)
+    save_path = os.path.join(base_path, run_name)
+    plt.savefig(save_path + '.pdf', format='pdf', bbox_inches='tight')
+    # try:
+    #     plt.savefig(save_path + '.pgf', format='pgf', bbox_inches='tight')
+    # except:
+    #     print('Failed to save .pgf file  \n  tto allow to save pgf files -  $ sudo apt install texlive-xetex')
+    print('Figure saved at ', save_path)
+
+
+def set_default_plot_params():
+    plt_params = {'font.size': 10,
+                  'lines.linewidth': 2, 'legend.fontsize': 16, 'legend.handlelength': 2,
+                  'pdf.fonttype': 42, 'ps.fonttype': 42,
+                  'axes.labelsize': 18, 'axes.titlesize': 18,
+                  'xtick.labelsize': 14, 'ytick.labelsize': 14}
+    plt.rcParams.update(plt_params)
+
+
+def ensure_dir(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+#

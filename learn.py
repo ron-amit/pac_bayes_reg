@@ -47,3 +47,4 @@ def run_learning(args):
     test_err = run_evaluation(model, args, test_loader)
     print(f'Final test error: {test_err}, (estimated from {n_samp_test} samples)')
     # ---------------------------------------------------------------------------------------#
+    return train_err, test_err

@@ -1,7 +1,12 @@
 import argparse
+from datetime import datetime
+import math
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
-from utils import set_device
+from utils import set_device, set_default_plot_params, save_fig
 from learn import run_learning
+
 # ---------------------------------------------------------------------------------------#
 parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=100, metavar='N',
@@ -14,10 +19,9 @@ parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='how many batches to wait before logging training status')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
-torch.manual_seed(args.seed)
 device = set_device(args)
 args.device = device
-args.d = 20
+args.d = 200
 args.r = 1.
 args.g_vec_max_radius = 0.1
 args.x_max_radius = 0.1
@@ -30,6 +34,41 @@ args.sigma_P = 1e-3
 args.batch_size = 64
 args.delta = 0.05
 args.n_train_samp = 100
+
+torch.manual_seed(args.seed)
+set_default_plot_params()
 # ---------------------------------------------------------------------------------------#
-run_learning(args)
+n_reps = 5
+n_samp_grid = [10, 20, 30]
+n_grid = len(n_samp_grid)
+train_risk = np.zeros((n_grid, n_reps))
+test_risk = np.zeros((n_grid, n_reps))
+for i_rep in range(n_reps):
+    for i_grid, n_samp in enumerate(n_samp_grid):
+        args.n_train_samp = n_samp
+        train_risk[i_grid, i_rep], test_risk[i_grid, i_rep] = run_learning(args)
 # ---------------------------------------------------------------------------------------#
+
+mean_train_risk = train_risk.mean(axis=1)
+std_train_risk = train_risk.std(axis=1)
+mean_test_risk = test_risk.mean(axis=1)
+std_test_risk = test_risk.std(axis=1)
+# Plot reward
+ci_factor = 1.96 / math.sqrt(n_reps)  # 95% confidence interval factor
+plt.figure()
+plt.plot(n_samp_grid, mean_train_risk, marker='o', label='Test risk', color='blue')
+plt.fill_between(n_samp_grid, mean_train_risk - std_train_risk * ci_factor,
+                 mean_train_risk + std_train_risk * ci_factor,
+                 color='blue', alpha=0.2)
+plt.plot(n_samp_grid, mean_test_risk, marker='o', label='Train risk', color='red')
+plt.fill_between(n_samp_grid, mean_test_risk - std_test_risk * ci_factor,
+                 mean_test_risk + std_test_risk * ci_factor,
+                 color='red', alpha=0.2)
+plt.legend()
+plt.grid(True)
+plt.xlabel('Number of samples')
+plt.ylabel('Average Episode Return')
+save_PDF = True
+if save_PDF:
+    save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S'), base_path='./figures')
+plt.show()
