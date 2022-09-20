@@ -5,6 +5,7 @@ from utils import draw_uniformly_in_ball, to_device
 from bounds import wpb_bound
 from data import PairsDataset
 
+
 def loss_func(h: tensor, X: tensor, y: tensor) -> tensor:
     assert h.n_dim == 1
     assert X.n_dim == 2  # [n_samp x d]
@@ -32,28 +33,32 @@ class PacBayesLinReg(nn.Module):
                 self.mu_Q *= self.r / torch.sqrt(mu_norm_sqr)
 
     def empirical_risk(self, X: tensor, Y: tensor) -> tensor:
-        n_samp = X.shape[0]
-        return (torch.sum((X @ self.mu_Q - Y) ** 2) + self.sigma_Q ** 2 * torch.sum(X[:] ** 2)) / (4 * n_samp)
+        batch_size = X.shape[0]
+        return (torch.sum((X @ self.mu_Q - Y) ** 2) + self.sigma_Q ** 2 * torch.sum(X[:] ** 2)) / (4 * batch_size)
 
     def draw_from_posterior(self):
         eps = torch.randn_like(self.mu_Q)
         h = self.mu_Q + eps * self.sigma_Q
         return h
 
-    def wpb_risk_bound(self, X: tensor, Y: tensor, delta: float) -> tensor:
-        n_samp = X.shape[0]
+    def wpb_risk_bound(self, X: tensor, Y: tensor, delta: float, n_samp: int) -> tensor:
         emp_risk = self.empirical_risk(X, Y)
-        gap_bound = wpb_bound(n_samp, delta, self.mu_Q, self.sigma_Q,  self.mu_P, self.sigma_P, self.d, self.r)
+        gap_bound = wpb_bound(n_samp, delta, self.mu_Q, self.sigma_Q, self.mu_P, self.sigma_P, self.d, self.r)
         return emp_risk + gap_bound
 
-    def run_evaluation(self, args, data_loader):
+    def run_evaluation(self, args, data_loader, calc_bound=False):
         self.eval()
         avg_loss = 0
+        avg_wpb_bnd = 0
         n_samp = len(data_loader.dataset)
         with torch.no_grad():
             for i, (X, Y) in enumerate(data_loader):
                 to_device(args.device, X, Y)
-                loss = self.wpb_risk_bound(X, Y, args.delta)
-                avg_loss += loss.item()
+                batch_size = X.shape[0]
+                loss = self.empirical_risk(X, Y)
+                if calc_bound:
+                    avg_wpb_bnd += self.wpb_risk_bound(X, Y, args.delta, n_samp).item()
+                avg_loss += loss.item() * batch_size
         avg_loss /= n_samp
-        return avg_loss
+        avg_wpb_bnd /= n_samp
+        return avg_loss, avg_wpb_bnd
