@@ -2,8 +2,7 @@ import torch
 from torch import tensor
 import torch.nn as nn
 from utils import draw_uniformly_in_ball, to_device
-from bounds import wpb_bound
-from data import PairsDataset
+from bounds import wpb_bound, uc_bound
 
 
 def loss_func(h: tensor, X: tensor, y: tensor) -> tensor:
@@ -45,6 +44,10 @@ class PacBayesLinReg(nn.Module):
         emp_risk = self.empirical_risk(X, Y)
         gap_bound = wpb_bound(n_samp, delta, self.mu_Q, self.sigma_Q, self.mu_P, self.sigma_P, self.d, self.r)
         return emp_risk + gap_bound
+
+    def uc_gap_bound(self, delta: float, n_samp: int) -> tensor:
+        gap_bound = uc_bound(n_samp, delta, self.d)
+        return gap_bound
 
     def run_evaluation(self, args, data_loader, calc_bound=False):
         self.eval()

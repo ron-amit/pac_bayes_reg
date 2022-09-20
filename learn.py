@@ -48,7 +48,9 @@ def run_learning(args):
     test_err, _ = model.run_evaluation(args, test_loader)
     print(f'Final test error: {test_err:.6f}')
     print(f'Final WPB bound: {wpb_bnd:.6f}')
+    uc_bnd = train_err + model.uc_gap_bound(args.delta, args.n_train_samp)
+    print(f'UC bound: {uc_bnd:.6f}')
 
     print( '-'*100)
     # ---------------------------------------------------------------------------------------#
-    return train_err, test_err, wpb_bnd
+    return train_err, test_err, wpb_bnd, uc_bnd
