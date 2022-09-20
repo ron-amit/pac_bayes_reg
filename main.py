@@ -22,15 +22,16 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 device = set_device(args)
 args.device = device
 args.d = 2000
-args.r = 100.
-args.g_vec_max_radius = 0.0001
-args.x_max_radius = 0.001
-args.noise_min = -0.1
-args.noise_max = 0.1
-args.sigma_Q = 1e-3
-args.mu_Q_max_radius = 0.01
+args.r = 1.
+args.g_vec_max_norm = 0.01
+args.x_max_norm = 0.1
+# args.noise_min = -0.1
+# args.noise_max = 0.1
+args.noise_max_norm = 10.
+args.sigma_Q = 1e-2
+args.mu_Q_max_norm = 0.1
 args.mu_P = torch.zeros(args.d)
-args.sigma_P = 1e-1
+args.sigma_P = 1e-2
 args.batch_size = 50
 args.delta = 0.05
 args.n_train_samp = 0
@@ -38,7 +39,7 @@ args.n_train_samp = 0
 torch.manual_seed(args.seed)
 set_default_plot_params()
 # ---------------------------------------------------------------------------------------#
-n_reps = 5
+n_reps = 3
 n_samp_grid = [10,  20, 30, 40]
 n_grid = len(n_samp_grid)
 train_risk = np.zeros((n_grid, n_reps))

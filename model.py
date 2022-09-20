@@ -15,11 +15,11 @@ def loss_func(h: tensor, X: tensor, y: tensor) -> tensor:
 
 
 class PacBayesLinReg(nn.Module):
-    def __init__(self, d: int, r: float, mu_Q_max_radius: float, sigma_Q: float, mu_P: tensor, sigma_P: float):
+    def __init__(self, d: int, r: float, mu_Q_max_norm: float, sigma_Q: float, mu_P: tensor, sigma_P: float):
         super().__init__()
         self.r = r
-        self.mu_Q_max_radius = mu_Q_max_radius
-        mu_Q_init = draw_uniformly_in_ball(d, mu_Q_max_radius).squeeze()
+        self.mu_Q_max_norm = mu_Q_max_norm
+        mu_Q_init = draw_uniformly_in_ball(d, mu_Q_max_norm).squeeze()
         self.mu_Q = nn.Parameter(mu_Q_init)
         self.sigma_Q = sigma_Q
         self.mu_P = mu_P
