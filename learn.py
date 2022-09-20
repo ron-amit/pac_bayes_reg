@@ -17,7 +17,7 @@ def run_learning(args):
     train_data = task.get_dataset(n_train_samp)
     train_loader = None
 
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(1, args.n_epochs + 1):
         train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True,
                                   generator=torch.Generator(device=args.device))
         model.train()

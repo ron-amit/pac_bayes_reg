@@ -9,7 +9,7 @@ from learn import run_learning
 
 # ---------------------------------------------------------------------------------------#
 parser = argparse.ArgumentParser()
-parser.add_argument('--epochs', type=int, default=100, metavar='N',
+parser.add_argument('--n_epochs', type=int, default=1000, metavar='N',
                     help='number of epochs to train')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
@@ -23,7 +23,7 @@ device = set_device(args)
 args.device = device
 args.d = 2000
 args.r = 100.
-args.g_vec_max_radius = 0.001
+args.g_vec_max_radius = 0.0001
 args.x_max_radius = 0.001
 args.noise_min = -0.1
 args.noise_max = 0.1
