@@ -42,11 +42,13 @@ def run_learning(args):
     # ---------------------------------------------------------------------------------------#
     print('\n')
     train_err, wpb_bnd = model.run_evaluation(args, train_loader, calc_bound=True)
-    print(f'Final training error: {train_err:.6f}, (number of training samples: {n_train_samp})')
+    print(f'Final training error: {train_err:.6f}, (# training samples: {n_train_samp})')
     n_samp_test = 10000
     test_loader = DataLoader(task.get_dataset(n_samp_test), batch_size=args.batch_size, shuffle=False)
     test_err, _ = model.run_evaluation(args, test_loader)
-    print(f'Final test error: {test_err:.6f}, (estimated from {n_samp_test} samples)')
+    print(f'Final test error: {test_err:.6f}')
+    print(f'Final WPB bound: {wpb_bnd:.6f}')
+
     print( '-'*100)
     # ---------------------------------------------------------------------------------------#
     return train_err, test_err, wpb_bnd
