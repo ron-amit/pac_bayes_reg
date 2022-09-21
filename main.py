@@ -3,6 +3,7 @@ from datetime import datetime
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas
 import torch
 from utils import set_device, set_default_plot_params, save_fig
 from learn import run_learning
@@ -90,3 +91,16 @@ save_PDF = True
 if save_PDF:
     save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S_risk'), base_path='figures')
 plt.show()
+
+df = pandas.DataFrame({"# samples": n_samp_grid,
+                       "train risk": mean_train_risk,
+                       "+/- train": std_train_risk,
+                       "test risk": mean_test_risk,
+                       "+/- test": std_test_risk,
+                       "WPB bound": mean_wpb_bnd,
+                       "+/- WPB": std_wpb_bnd,
+                       "UC bound": mean_uc_bnd,
+                       "+/- UC": std_uc_bnd})
+df = df.applymap(np.format_float_scientific, precision=3)
+with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
+    print (df)
