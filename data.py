@@ -14,9 +14,6 @@ class LearningTask:
 
     def get_dataset(self, n_samples: int):
         X = draw_uniformly_in_ball(self.d, self.x_max_norm, n_samples)
-        # noise = self.noise_min + torch.rand(n_samples) * (self.noise_max - self.noise_max)
-        # Y = torch.matmul(X, self.g_vec) + noise
-
         noise_xi = draw_uniformly_in_ball(self.d, self.noise_max_norm, n_samples)
         Y = torch.matmul(X + noise_xi, self.g_vec)
         assert torch.all(torch.abs(Y) <= 1)
