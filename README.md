@@ -10,4 +10,4 @@ Tested on Python 3.10.4, conda environment with:
  
 
 ## How to re-create results
-* 
+* python main.py --sigma_P 0.01

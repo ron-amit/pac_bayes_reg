@@ -18,6 +18,8 @@ parser.add_argument('--seed', type=int, default=2, metavar='S',
                     help='random seed')
 parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='how many batches to wait before logging training status')
+parser.add_argument('--sigma_P', type=float, default=0.01, metavar='N',
+                    help='STD of the prior distribution')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 device = set_device(args)
@@ -30,7 +32,7 @@ args.noise_max_norm = 10.
 args.sigma_Q = 1e-2
 args.mu_Q_max_norm = 0.1
 args.mu_P = torch.zeros(args.d)
-args.sigma_P = 1e-2  # 1e-4
+# args.sigma_P = 1e-2  # 1e-4
 args.batch_size = 50
 args.delta = 0.05
 args.n_train_samp = 0
