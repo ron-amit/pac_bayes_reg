@@ -15,8 +15,7 @@ class LearningTask:
     def get_dataset(self, n_samples: int):
         X = draw_uniformly_in_ball(self.d, self.x_max_norm, n_samples)
         noise_xi = draw_uniformly_in_ball(self.d, self.noise_max_norm, n_samples)
-        Y = torch.matmul(X + noise_xi, self.g_vec)
-        assert torch.all(torch.abs(Y) <= 1)
+        Y = torch.clip(torch.matmul(X + noise_xi, self.g_vec), min=-1, max=1)
         dataset = PairsDataset(X, Y)
         return dataset
 
