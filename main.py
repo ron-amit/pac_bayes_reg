@@ -22,17 +22,15 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 device = set_device(args)
 args.device = device
-args.d = 200
+args.d = 20
 args.r = 1.
-args.g_vec_max_norm = 0.01
-args.x_max_norm = 0.1
-# args.noise_min = -0.1
-# args.noise_max = 0.1
+args.g_vec_max_norm = 0.1
+args.x_max_norm = 0.01
 args.noise_max_norm = 10.
 args.sigma_Q = 1e-2
 args.mu_Q_max_norm = 0.1
 args.mu_P = torch.zeros(args.d)
-args.sigma_P = 1e-2
+args.sigma_P = 1e-2  # 1e-4
 args.batch_size = 50
 args.delta = 0.05
 args.n_train_samp = 0
@@ -41,49 +39,38 @@ torch.manual_seed(args.seed)
 set_default_plot_params()
 # ---------------------------------------------------------------------------------------#
 n_reps = 3
-n_samp_grid = [10,  20, 30, 40]
+n_samp_grid = [20, 40, 60, 80]
 n_grid = len(n_samp_grid)
-train_risk = np.zeros((n_grid, n_reps))
-test_risk = np.zeros((n_grid, n_reps))
-wpb_bnd = np.zeros((n_grid, n_reps))
-uc_bnd = np.zeros((n_grid, n_reps))
+results_labels = {'train_risk', 'test_risk', 'wpb_bnd', 'uc_bnd', 'klpb_bnd'}
+results = {label: np.zeros((n_grid, n_reps)) for label in results_labels}
 for i_rep in range(n_reps):
     for i_grid, n_samp in enumerate(n_samp_grid):
         args.n_train_samp = n_samp
-        train_risk[i_grid, i_rep], test_risk[i_grid, i_rep], wpb_bnd[i_grid, i_rep], uc_bnd[i_grid, i_rep]\
-            = run_learning(args)
+        result = run_learning(args)
+        for label in results_labels:
+            results[label][i_grid, i_rep] = result[label]
 # ---------------------------------------------------------------------------------------#
 # Risk figure
 # ---------------------------------------------------------------------------------------#
-mean_train_risk = train_risk.mean(axis=1)
-std_train_risk = train_risk.std(axis=1)
-mean_test_risk = test_risk.mean(axis=1)
-std_test_risk = test_risk.std(axis=1)
-mean_wpb_bnd = wpb_bnd.mean(axis=1)
-std_wpb_bnd = wpb_bnd.std(axis=1)
-mean_uc_bnd = uc_bnd.mean(axis=1)
-std_uc_bnd = uc_bnd.std(axis=1)
+mean_results = {label: np.mean(results[label], axis=1) for label in results_labels}
+std_results = {label: np.std(results[label], axis=1) for label in results_labels}
+
 ci_factor = 1.96 / math.sqrt(n_reps)  # 95% confidence interval factor
 plt.figure()
-plt.plot(n_samp_grid, mean_train_risk, marker='o', label='Test risk', color='blue')
-plt.fill_between(n_samp_grid, mean_train_risk - std_train_risk * ci_factor,
-                 mean_train_risk + std_train_risk * ci_factor,
-                 color='blue', alpha=0.2)
-plt.plot(n_samp_grid, mean_test_risk, marker='o', label='Train risk', color='red')
-plt.fill_between(n_samp_grid, mean_test_risk - std_test_risk * ci_factor,
-                 mean_test_risk + std_test_risk * ci_factor,
-                 color='red', alpha=0.2)
 
-plt.plot(n_samp_grid, mean_wpb_bnd, marker='o', label='WPB Bound', color='green')
-plt.fill_between(n_samp_grid, mean_wpb_bnd - std_wpb_bnd * ci_factor,
-                 mean_wpb_bnd + std_wpb_bnd * ci_factor,
-                 color='green', alpha=0.2)
 
-# plt.plot(n_samp_grid, mean_uc_bnd, marker='o', label='UC Bound', color='brown')
-# plt.fill_between(n_samp_grid, mean_uc_bnd - std_uc_bnd * ci_factor,
-#                  mean_uc_bnd + std_uc_bnd * ci_factor,
-#                  color='brown', alpha=0.2)
+def plot_line(result_name, label, color):
+    plt.plot(n_samp_grid, mean_results[result_name], marker='o', label=label, color=color)
+    plt.fill_between(n_samp_grid, mean_results[result_name] - std_results[result_name] * ci_factor,
+                     mean_results[result_name] + std_results[result_name] * ci_factor,
+                     color=color, alpha=0.2)
 
+
+plot_line('train_risk', 'Train risk', 'blue')
+plot_line('test_risk', 'Test risk', 'red')
+plot_line('wpb_bnd', 'WPB bound', 'green')
+# plot_line('uc_bnd', 'UC bound', 'orange')
+plot_line('klpb_bnd', 'KLPB bound', 'purple')
 plt.legend()
 plt.grid(True)
 plt.xlabel('Number of samples')
@@ -93,14 +80,16 @@ if save_PDF:
 plt.show()
 
 df = pandas.DataFrame({"# samples": n_samp_grid,
-                       "train risk": mean_train_risk,
-                       "+/- train": std_train_risk,
-                       "test risk": mean_test_risk,
-                       "+/- test": std_test_risk,
-                       "WPB bound": mean_wpb_bnd,
-                       "+/- WPB": std_wpb_bnd,
-                       "UC bound": mean_uc_bnd,
-                       "+/- UC": std_uc_bnd})
-df = df.applymap(np.format_float_scientific, precision=3)
+                       "train risk": mean_results['train_risk'],
+                       "+/- train": std_results['train_risk'],
+                       "test risk": mean_results['test_risk'],
+                       "+/- test": std_results['test_risk'],
+                       "WPB bound": mean_results['wpb_bnd'],
+                       "+/- WPB": std_results['wpb_bnd'],
+                       "KLPB bound": mean_results['klpb_bnd'],
+                       "+/- KLPB": std_results['klpb_bnd'],
+                       "UC bound": mean_results['uc_bnd'],
+                       "+/- UC": std_results['uc_bnd']})
+df = df.applymap(np.format_float_scientific, precision=2)
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
-    print (df)
+    print(df)

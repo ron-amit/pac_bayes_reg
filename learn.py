@@ -41,16 +41,20 @@ def run_learning(args):
     # Evaluate final model
     # ---------------------------------------------------------------------------------------#
     print('\n')
-    train_err, wpb_bnd = model.run_evaluation(args, train_loader, calc_bound=True)
-    print(f'Final training error: {train_err:.6f}, (# training samples: {n_train_samp})')
+    train_risk = model.run_evaluation(args, train_loader)
+    wpb_gap_bnd = model.wpb_gap_bound(args.delta, args.n_train_samp)
+    wpb_bnd = wpb_gap_bnd + train_risk
+    klpb_gap_bnd = model.klpb_gap_bound(args.delta, args.n_train_samp)
+    klpb_bnd = klpb_gap_bnd + train_risk
+    print(f'Final training error: {train_risk:.6f}, (# training samples: {n_train_samp})')
     n_samp_test = 10000
     test_loader = DataLoader(task.get_dataset(n_samp_test), batch_size=args.batch_size, shuffle=False)
-    test_err, _ = model.run_evaluation(args, test_loader)
-    print(f'Final test error: {test_err:.6f}')
+    test_risk = model.run_evaluation(args, test_loader)
+    print(f'Final test error: {test_risk:.6f}')
     print(f'Final WPB bound: {wpb_bnd:.6f}')
-    uc_bnd = train_err + model.uc_gap_bound(args.delta, args.n_train_samp)
+    print(f'Final KL PB bound: {klpb_bnd:.6f}')
+    uc_bnd = test_risk + model.uc_gap_bound(args.delta, args.n_train_samp)
     print(f'UC bound: {uc_bnd:.6f}')
-
     print( '-'*100)
-    # ---------------------------------------------------------------------------------------#
-    return train_err, test_err, wpb_bnd, uc_bnd
+    result = {'train_risk': train_risk, 'test_risk': test_risk, 'wpb_bnd': wpb_bnd, 'uc_bnd': uc_bnd, 'klpb_bnd': klpb_bnd}
+    return result

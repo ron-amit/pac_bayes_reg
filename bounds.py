@@ -1,7 +1,7 @@
 import torch
 from torch import tensor
 from math import sqrt, log, pi
-
+import numpy as np
 
 def uc_bound(m: int, delta: float, d: int) -> float:
     assert delta > 0
@@ -37,4 +37,12 @@ def wpb_bound(m: int, delta: float, mu_q: tensor, sigma_q: tensor, mu_p: tensor,
     ug = uc_grad_bound(m, delta / 4, d, r)
     w_bnd = wasserstein_gauss_proj(mu_q, sigma_q, mu_p, sigma_p, d, r)
     bnd = torch.sqrt(2 * u * ug * w_bnd + log(2 * m / delta) / (2 * (m - 1)))
+    return bnd
+
+
+def kl_pb_bound(m: int, delta: float, mu_q: tensor, sigma_q: tensor, mu_p: tensor, sigma_p: tensor, d: int) -> tensor:
+    assert m > 1
+    kl = torch.sum((mu_q - mu_p)**2) / (2 * sigma_p**2) \
+          + d * (log(sigma_p / sigma_q) + sigma_q**2 / (2 * sigma_p**2) - 0.5)
+    bnd = torch.sqrt((kl + log(2 * m / delta)) / (2 * (m - 1)))
     return bnd

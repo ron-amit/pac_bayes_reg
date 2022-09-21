@@ -2,7 +2,7 @@ import torch
 from torch import tensor
 import torch.nn as nn
 from utils import draw_uniformly_in_ball, to_device
-from bounds import wpb_bound, uc_bound
+from bounds import wpb_bound, uc_bound, kl_pb_bound
 
 
 def loss_func(h: tensor, X: tensor, y: tensor) -> tensor:
@@ -40,28 +40,37 @@ class PacBayesLinReg(nn.Module):
         h = self.mu_Q + eps * self.sigma_Q
         return h
 
+    def wpb_gap_bound(self, delta: float, n_samp: int) -> tensor:
+        gap_bound = wpb_bound(n_samp, delta, self.mu_Q, self.sigma_Q, self.mu_P, self.sigma_P, self.d, self.r)
+        return gap_bound
+
     def wpb_risk_bound(self, X: tensor, Y: tensor, delta: float, n_samp: int) -> tensor:
         emp_risk = self.empirical_risk(X, Y)
-        gap_bound = wpb_bound(n_samp, delta, self.mu_Q, self.sigma_Q, self.mu_P, self.sigma_P, self.d, self.r)
+        gap_bound = self.wpb_gap_bound(delta, n_samp)
+        return emp_risk + gap_bound
+
+    def klpb_gap_bound(self, delta: float, n_samp: int) -> tensor:
+        gap_bound = kl_pb_bound(n_samp, delta, self.mu_Q, self.sigma_Q, self.mu_P, self.sigma_P, self.d)
+        return gap_bound
+
+    def klpb_risk_bound(self, X: tensor, Y: tensor, delta: float, n_samp: int) -> tensor:
+        emp_risk = self.empirical_risk(X, Y)
+        gap_bound = self.klpb_gap_bound(delta, n_samp)
         return emp_risk + gap_bound
 
     def uc_gap_bound(self, delta: float, n_samp: int) -> tensor:
         gap_bound = uc_bound(n_samp, delta, self.d)
         return gap_bound
 
-    def run_evaluation(self, args, data_loader, calc_bound=False):
+    def run_evaluation(self, args, data_loader):
         self.eval()
         avg_loss = 0
-        avg_wpb_bnd = 0
         n_samp = len(data_loader.dataset)
         with torch.no_grad():
             for i, (X, Y) in enumerate(data_loader):
                 to_device(args.device, X, Y)
                 batch_size = X.shape[0]
                 loss = self.empirical_risk(X, Y)
-                if calc_bound:
-                    avg_wpb_bnd += self.wpb_risk_bound(X, Y, args.delta, n_samp).item()
                 avg_loss += loss.item() * batch_size
         avg_loss /= n_samp
-        avg_wpb_bnd /= n_samp
-        return avg_loss, avg_wpb_bnd
+        return avg_loss
