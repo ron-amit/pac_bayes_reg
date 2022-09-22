@@ -76,6 +76,8 @@ plot_line('klpb_bnd', 'KLPB bound', 'purple')
 plt.legend()
 plt.grid(True)
 plt.xlabel('Number of samples')
+plt.ylabel('Loss')
+plt.title(r'$\sigma_P = {}$'.format(args.sigma_P))
 save_PDF = True
 if save_PDF:
     save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S_risk'), base_path='figures')
