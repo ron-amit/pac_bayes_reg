@@ -1,7 +1,8 @@
 import argparse
 import math
+import os
 from datetime import datetime
-
+import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
@@ -22,17 +23,19 @@ parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--sigma_P', type=float, default=0.01, metavar='N',
                     help='STD of the prior distribution')
+parser.add_argument('--optim_objective', type=str, default='klpb_risk_bound', metavar='N',
+                    help='Optimization objective (wpb_risk_bound / klpb_risk_bound / empirical_risk)')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 device = set_device(args)
 args.device = device
-args.d = 100
+args.d = 10
 args.r = 1.
-args.g_vec_max_norm = 0.1
-args.x_max_norm = 0.1
-args.noise_max_norm = 10.
-args.sigma_Q = 1e-2
-args.mu_Q_max_norm = 0.1
+args.g_vec_max_norm = 0.05
+args.x_max_norm = 0.5
+args.noise_max_norm = 2.
+args.sigma_Q = 1e-3
+args.mu_Q_max_norm = 0.05
 args.mu_P = torch.zeros(args.d)
 # args.sigma_P = 1e-2  # 1e-4
 args.batch_size = 256
@@ -44,7 +47,7 @@ set_default_plot_params()
 
 # ---------------------------------------------------------------------------------------#
 n_reps = 20
-n_samp_grid = [40, 80, 120, 160]
+n_samp_grid = [100, 200, 300, 400]
 n_grid = len(n_samp_grid)
 results_labels = {'train_risk', 'test_risk', 'wpb_bnd', 'uc_bnd', 'klpb_bnd'}
 results = {label: np.zeros((n_grid, n_reps)) for label in results_labels}
@@ -83,13 +86,23 @@ plt.grid(True)
 plt.xlabel('Number of samples')
 plt.ylabel('Loss')
 plt.title(r'$\sigma_P = {}$'.format(args.sigma_P))
-save_PDF = True
-if save_PDF:
-    save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S_risk'), base_path='figures')
+base_path = 'results'
+file_name = f'{datetime.now().strftime("%Y%m%d-%H%M%S")}_sigmaP_{args.sigma_P}'
+save_fig(file_name, base_path=base_path)
 plt.show()
 
 df = pandas.DataFrame({"# samples": n_samp_grid} | {f"{label}": mean_results[label] for label in results_labels}
                       | {f"+/- {label}": std_results[label] for label in results_labels})
+
 df = df.applymap(np.format_float_scientific, precision=2)
+
+with open(os.path.join(base_path, file_name)+'.pkl', 'wb') as f:
+    pickle.dump([args, df], f)
+
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
     print(df)
+
+with open(os.path.join(base_path, file_name) + 'txt', 'w') as f:
+    f.write(str(args))
+    f.write('-'*100)
+    f.write(df.style.to_latex())

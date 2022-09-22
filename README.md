@@ -7,6 +7,7 @@ Tested on Python 3.10.4, conda environment with:
 * numpy 1.23.2\
 * pandas 1.4.3
 * pytorch 1.12.1
+* Jinja2 3.0.3
  
 
 ## How to re-create results

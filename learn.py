@@ -11,7 +11,7 @@ def run_learning(args):
     task = LearningTask(args.d, args.g_vec_max_norm, args.x_max_norm, args.noise_max_norm)
     model = PacBayesLinReg(args.d, args.r, args.mu_Q_max_norm, args.sigma_Q, args.mu_P, args.sigma_P).to(args.device)
     # optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     # ---------------------------------------------------------------------------------------#
     # Training loop
     # ---------------------------------------------------------------------------------------#
@@ -27,7 +27,14 @@ def run_learning(args):
         for batch_idx, (X, Y) in enumerate(train_loader):
             to_device(args.device, X, Y)
             optimizer.zero_grad()
-            loss = model.wpb_risk_bound(X, Y, args.delta, args.n_train_samp)
+            if args.optim_objective == 'empirical_risk':
+                loss = model.empirical_risk(X, Y)
+            elif args.optim_objective == 'wpb_risk_bound':
+                loss = model.wpb_risk_bound(X, Y, args.delta, args.n_train_samp)
+            elif args.optim_objective == 'klpb_risk_bound':
+                loss = model.klpb_risk_bound(X, Y, args.delta, args.n_train_samp)
+            else:
+                raise ValueError('Unknown optim_objective: {}'.format(args.optim_objective))
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
