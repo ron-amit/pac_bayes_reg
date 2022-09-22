@@ -1,9 +1,18 @@
 import os
-import matplotlib.pyplot as plt
-import torch
-from torch.nn.functional import normalize
-from torch import tensor
+import random
 
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from torch import tensor
+from torch.nn.functional import normalize
+
+
+def set_random_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
 
 def draw_uniformly_in_ball(d: int, r: float, n: int = 1) -> tensor:
     """

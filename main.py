@@ -1,12 +1,14 @@
 import argparse
-from datetime import datetime
 import math
-import numpy as np
+from datetime import datetime
+
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas
 import torch
-from utils import set_device, set_default_plot_params, save_fig
+
 from learn import run_learning
+from utils import set_device, set_default_plot_params, save_fig, set_random_seed
 
 # ---------------------------------------------------------------------------------------#
 parser = argparse.ArgumentParser()
@@ -24,28 +26,30 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 device = set_device(args)
 args.device = device
-args.d = 20
+args.d = 100
 args.r = 1.
 args.g_vec_max_norm = 0.1
-args.x_max_norm = 0.01
+args.x_max_norm = 0.1
 args.noise_max_norm = 10.
 args.sigma_Q = 1e-2
 args.mu_Q_max_norm = 0.1
 args.mu_P = torch.zeros(args.d)
 # args.sigma_P = 1e-2  # 1e-4
-args.batch_size = 50
+args.batch_size = 256
 args.delta = 0.05
 args.n_train_samp = 0
 
-torch.manual_seed(args.seed)
+set_random_seed(args.seed)
 set_default_plot_params()
+
 # ---------------------------------------------------------------------------------------#
-n_reps = 3
-n_samp_grid = [20, 40, 60, 80]
+n_reps = 20
+n_samp_grid = [40, 80, 120, 160]
 n_grid = len(n_samp_grid)
 results_labels = {'train_risk', 'test_risk', 'wpb_bnd', 'uc_bnd', 'klpb_bnd'}
 results = {label: np.zeros((n_grid, n_reps)) for label in results_labels}
 for i_rep in range(n_reps):
+    set_random_seed(args.seed + i_rep)
     for i_grid, n_samp in enumerate(n_samp_grid):
         args.n_train_samp = n_samp
         result = run_learning(args)
@@ -56,6 +60,7 @@ for i_rep in range(n_reps):
 # ---------------------------------------------------------------------------------------#
 mean_results = {label: np.mean(results[label], axis=1) for label in results_labels}
 std_results = {label: np.std(results[label], axis=1) for label in results_labels}
+
 
 ci_factor = 1.96 / math.sqrt(n_reps)  # 95% confidence interval factor
 plt.figure()
@@ -83,17 +88,8 @@ if save_PDF:
     save_fig(datetime.now().strftime('%Y_%m_%d__%H_%M_%S_risk'), base_path='figures')
 plt.show()
 
-df = pandas.DataFrame({"# samples": n_samp_grid,
-                       "train risk": mean_results['train_risk'],
-                       "+/- train": std_results['train_risk'],
-                       "test risk": mean_results['test_risk'],
-                       "+/- test": std_results['test_risk'],
-                       "WPB bound": mean_results['wpb_bnd'],
-                       "+/- WPB": std_results['wpb_bnd'],
-                       "KLPB bound": mean_results['klpb_bnd'],
-                       "+/- KLPB": std_results['klpb_bnd'],
-                       "UC bound": mean_results['uc_bnd'],
-                       "+/- UC": std_results['uc_bnd']})
+df = pandas.DataFrame({"# samples": n_samp_grid} | {f"{label}": mean_results[label] for label in results_labels}
+                      | {f"+/- {label}": std_results[label] for label in results_labels})
 df = df.applymap(np.format_float_scientific, precision=2)
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
     print(df)

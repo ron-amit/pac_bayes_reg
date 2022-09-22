@@ -1,8 +1,9 @@
 import torch
-from torch import tensor
 import torch.nn as nn
-from utils import draw_uniformly_in_ball, to_device
+from torch import tensor
+
 from bounds import wpb_bound, uc_bound, kl_pb_bound
+from utils import draw_uniformly_in_ball, to_device
 
 
 def loss_func(h: tensor, X: tensor, y: tensor) -> tensor:

@@ -1,7 +1,8 @@
+from math import sqrt, log, pi
+
 import torch
 from torch import tensor
-from math import sqrt, log, pi
-import numpy as np
+
 
 def uc_bound(m: int, delta: float, d: int) -> float:
     assert delta > 0

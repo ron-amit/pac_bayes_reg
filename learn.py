@@ -1,9 +1,10 @@
 
 import torch
 from torch.utils.data import DataLoader
-from utils import to_device
+
 from data import LearningTask
 from model import PacBayesLinReg
+from utils import to_device
 
 
 def run_learning(args):
