@@ -23,8 +23,8 @@ def wasserstein_gauss_proj(mu_q: tensor, sigma_q: tensor, mu_p: tensor, sigma_p:
                            r: float) -> tensor:
     assert mu_q.ndim == 1
     assert mu_q.shape[0] == d
-    w_bnd = torch.sqrt(torch.sum((mu_q - mu_p) ** 2) + d * (sigma_q - sigma_p) ** 2) \
-            + sqrt(pi / 2) * sigma_q * torch.erfc(
+    w_bnd = torch.sqrt(torch.sum((mu_q - mu_p) ** 2) + d * (sigma_q - sigma_p) ** 2)
+    w_bnd += sqrt(pi / 2) * sigma_q * torch.erfc(
         (r - torch.sqrt(torch.sum(mu_q ** 2) + d * sigma_q ** 2)) / (sqrt(2) * sigma_q)) \
             + sqrt(pi / 2) * sigma_p * torch.erfc(
         (r - torch.sqrt(torch.sum(mu_p ** 2) + d * sigma_p ** 2)) / (sqrt(2) * sigma_p))

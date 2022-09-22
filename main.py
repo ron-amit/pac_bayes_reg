@@ -33,7 +33,7 @@ args.d = 10
 args.r = 1.
 args.g_vec_max_norm = 0.05
 args.x_max_norm = 0.5
-args.noise_max_norm = 2.
+args.noise_max_norm = 200.
 args.sigma_Q = 1e-3
 args.mu_Q_max_norm = 0.05
 args.mu_P = torch.zeros(args.d)
@@ -44,7 +44,6 @@ args.n_train_samp = 0
 
 set_random_seed(args.seed)
 set_default_plot_params()
-
 # ---------------------------------------------------------------------------------------#
 n_reps = 20
 n_samp_grid = [100, 200, 300, 400]
@@ -68,6 +67,8 @@ std_results = {label: np.std(results[label], axis=1) for label in results_labels
 ci_factor = 1.96 / math.sqrt(n_reps)  # 95% confidence interval factor
 plt.figure()
 
+
+# TODO: add figures of W and KL distances
 
 def plot_line(result_name, label, color):
     plt.plot(n_samp_grid, mean_results[result_name], marker='o', label=label, color=color)
