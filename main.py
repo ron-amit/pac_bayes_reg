@@ -63,12 +63,9 @@ for i_rep in range(n_reps):
 mean_results = {label: np.mean(results[label], axis=1) for label in results_labels}
 std_results = {label: np.std(results[label], axis=1) for label in results_labels}
 
-
 ci_factor = 1.96 / math.sqrt(n_reps)  # 95% confidence interval factor
-plt.figure()
+base_path = 'results'
 
-
-# TODO: add figures of W and KL distances
 
 def plot_line(result_name, label, color):
     plt.plot(n_samp_grid, mean_results[result_name], marker='o', label=label, color=color)
@@ -77,27 +74,35 @@ def plot_line(result_name, label, color):
                      color=color, alpha=0.2)
 
 
-plot_line('train_risk', 'Train risk', 'blue')
-plot_line('test_risk', 'Test risk', 'red')
-plot_line('wpb_bnd', 'WPB bound', 'green')
-# plot_line('uc_bnd', 'UC bound', 'orange')
-plot_line('klpb_bnd', 'KLPB bound', 'purple')
-plt.legend()
-plt.grid(True)
-plt.xlabel('Number of samples')
-plt.ylabel('Loss')
-plt.title(r'$\sigma_P = {}$'.format(args.sigma_P))
-base_path = 'results'
+def draw_figure(f_name, show_UC=False):
+    plt.figure()
+    plot_line('train_risk', 'Train risk', 'blue')
+    plot_line('test_risk', 'Test risk', 'red')
+    plot_line('wpb_bnd', 'WPB bound', 'green')
+    plot_line('klpb_bnd', 'KLPB bound', 'purple')
+    if show_UC:
+        plot_line('uc_bnd', 'UC bound', 'orange')
+    plt.legend()
+    plt.grid(True)
+    plt.xlabel('Number of samples')
+    plt.ylabel('Loss')
+    plt.title(r'$\sigma_P = {}$'.format(args.sigma_P))
+    save_fig(f_name, base_path=base_path)
+    plt.show()
+
+
 file_name = f'{datetime.now().strftime("%Y%m%d-%H%M%S")}_sigmaP_{args.sigma_P}'
-save_fig(file_name, base_path=base_path)
-plt.show()
+draw_figure(f_name=file_name)
+draw_figure(f_name=file_name + '_UC', show_UC=True)
 
-df = pandas.DataFrame({"# samples": n_samp_grid} | {f"{label}": mean_results[label] for label in results_labels}
-                      | {f"+/- {label}": std_results[label] for label in results_labels})
+# ---------------------------------------------------------------------------------------#
+fields_dict = {"# samples": n_samp_grid}
+for label in results_labels:
+    fields_dict[f"{label}"] = f"{mean_results[label]} ({std_results[label] * ci_factor})"
+df = pandas.DataFrame(fields_dict)
+pandas.options.display.float_format = '{:.4f}'.format
 
-df = df.applymap(np.format_float_scientific, precision=2)
-
-with open(os.path.join(base_path, file_name)+'.pkl', 'wb') as f:
+with open(os.path.join(base_path, file_name) + '.pkl', 'wb') as f:
     pickle.dump([args, df], f)
 
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
@@ -105,5 +110,5 @@ with pandas.option_context('display.max_rows', None, 'display.max_columns', None
 
 with open(os.path.join(base_path, file_name) + 'txt', 'w') as f:
     f.write(str(args))
-    f.write('-'*100)
+    f.write('-' * 100)
     f.write(df.style.to_latex())
