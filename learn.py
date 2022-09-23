@@ -62,7 +62,7 @@ def run_learning(args):
     print(f'Final WPB bound: {wpb_bnd:.4f}')
     print(f'Final KL PB bound: {klpb_bnd:.4f}')
     uc_bnd = test_risk + model.uc_gap_bound(args.delta, args.n_train_samp)
-    print(f'UC bound: {uc_bnd:.6f}')
+    print(f'UC bound: {uc_bnd:.4f}')
     print( '-'*100)
     result = {'train_risk': train_risk, 'test_risk': test_risk, 'wpb_bnd': wpb_bnd, 'uc_bnd': uc_bnd, 'klpb_bnd': klpb_bnd}
     return result

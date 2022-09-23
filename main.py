@@ -98,9 +98,14 @@ draw_figure(f_name=file_name + '_UC', show_UC=True)
 # ---------------------------------------------------------------------------------------#
 fields_dict = {"# samples": n_samp_grid}
 for label in results_labels:
-    fields_dict[f"{label}"] = f"{mean_results[label]:9.4f} ({(std_results[label] * ci_factor):5.4f})"
+    means = mean_results[label]
+    stds = std_results[label]
+    field_list = []
+    for i in range(len(means)):
+        field_list.append(f'{means[i]:9.4f} ({stds[i]:5.4f})')
+    fields_dict[f"{label}"] = field_list
 df = pandas.DataFrame(fields_dict)
-
+df.set_index("# samples", inplace=True)
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
     print(df)
 
