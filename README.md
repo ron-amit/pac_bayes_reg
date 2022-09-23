@@ -4,7 +4,7 @@ Code for recreating the experiments in the paper ["Integral Probability Metrics 
 ## Pre-requisites
 Tested on Python 3.10.4, conda environment with:
 * matplotlib 3.5.2
-* numpy 1.23.2\
+* numpy 1.23.2
 * pandas 1.4.3
 * pytorch 1.12.1
 * Jinja2 3.0.3

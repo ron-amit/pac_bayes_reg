@@ -48,7 +48,7 @@ set_default_plot_params()
 n_reps = 20
 n_samp_grid = [100, 200, 300, 400]
 n_grid = len(n_samp_grid)
-results_labels = {'Train risk', 'Test risk', 'WPB bound',  'KLPB bound', 'UC bound'}
+results_labels = {'Train risk', 'Test risk', 'WPB bound', 'KLPB bound', 'UC bound'}
 results = {label: np.zeros((n_grid, n_reps)) for label in results_labels}
 for i_rep in range(n_reps):
     set_random_seed(args.seed + i_rep)
@@ -109,7 +109,8 @@ df.set_index("# samples", inplace=True)
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
     print(df)
 
-with open(os.path.join(base_path, file_name) + 'txt', 'w') as f:
+with open(os.path.join(base_path, file_name) + '.txt', 'w') as f:
     f.write(str(args))
     f.write('\n' + '-' * 100 + '\n')
+    df.rename(columns={"# samples": r"\# samples"})
     f.write(df.style.to_latex())
