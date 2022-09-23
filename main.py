@@ -13,7 +13,7 @@ from utils import set_device, set_default_plot_params, save_fig, set_random_seed
 
 # ---------------------------------------------------------------------------------------#
 parser = argparse.ArgumentParser()
-parser.add_argument('--n_epochs', type=int, default=1000, metavar='N',
+parser.add_argument('--n_epochs', type=int, default=300, metavar='N',
                     help='number of epochs to train')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
@@ -98,12 +98,8 @@ draw_figure(f_name=file_name + '_UC', show_UC=True)
 # ---------------------------------------------------------------------------------------#
 fields_dict = {"# samples": n_samp_grid}
 for label in results_labels:
-    fields_dict[f"{label}"] = f"{mean_results[label]} ({std_results[label] * ci_factor})"
+    fields_dict[f"{label}"] = f"{mean_results[label]:9.4f} ({(std_results[label] * ci_factor):5.4f})"
 df = pandas.DataFrame(fields_dict)
-pandas.options.display.float_format = '{:.4f}'.format
-
-with open(os.path.join(base_path, file_name) + '.pkl', 'wb') as f:
-    pickle.dump([args, df], f)
 
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
     print(df)

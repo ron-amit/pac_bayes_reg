@@ -58,9 +58,9 @@ def run_learning(args):
     n_samp_test = 10000
     test_loader = DataLoader(task.get_dataset(n_samp_test), batch_size=args.batch_size, shuffle=False)
     test_risk = model.run_evaluation(args, test_loader)
-    print(f'Final test error: {test_risk:.6f}')
-    print(f'Final WPB bound: {wpb_bnd:.6f}')
-    print(f'Final KL PB bound: {klpb_bnd:.6f}')
+    print(f'Final test error: {test_risk:.4f}')
+    print(f'Final WPB bound: {wpb_bnd:.4f}')
+    print(f'Final KL PB bound: {klpb_bnd:.4f}')
     uc_bnd = test_risk + model.uc_gap_bound(args.delta, args.n_train_samp)
     print(f'UC bound: {uc_bnd:.6f}')
     print( '-'*100)
