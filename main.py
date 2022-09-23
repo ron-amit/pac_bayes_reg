@@ -41,6 +41,7 @@ args.mu_P = torch.zeros(args.d)
 args.batch_size = 256
 args.delta = 0.05
 args.n_train_samp = 0
+args.n_samp_test = 10000
 
 set_random_seed(args.seed)
 set_default_plot_params()
@@ -96,7 +97,7 @@ draw_figure(f_name=file_name)
 draw_figure(f_name=file_name + '_UC', show_UC=True)
 
 # ---------------------------------------------------------------------------------------#
-fields_dict = {"# samples": n_samp_grid}
+fields_dict = {"# train samples": n_samp_grid}
 for label in results_labels:
     means = mean_results[label]
     stds = std_results[label]
@@ -105,12 +106,12 @@ for label in results_labels:
         field_list.append(f'{means[i]:9.4f} ({stds[i]:5.4f})')
     fields_dict[f"{label}"] = field_list
 df = pandas.DataFrame(fields_dict)
-df.set_index("# samples", inplace=True)
+df.set_index("# train samples", inplace=True)
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
     print(df)
 
 with open(os.path.join(base_path, file_name) + '.txt', 'w') as f:
     f.write(str(args))
     f.write('\n' + '-' * 100 + '\n')
-    df.rename(columns={"# samples": r"\# samples"})
+    df.rename(columns={"# train samples": r"\# train samples"})
     f.write(df.style.to_latex())
