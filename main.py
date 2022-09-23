@@ -2,7 +2,7 @@ import argparse
 import math
 import os
 from datetime import datetime
-import pickle
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
@@ -48,7 +48,7 @@ set_default_plot_params()
 n_reps = 20
 n_samp_grid = [100, 200, 300, 400]
 n_grid = len(n_samp_grid)
-results_labels = {'train_risk', 'test_risk', 'wpb_bnd', 'uc_bnd', 'klpb_bnd'}
+results_labels = {'Train risk', 'Test risk', 'WPB bound',  'KLPB bound', 'UC bound'}
 results = {label: np.zeros((n_grid, n_reps)) for label in results_labels}
 for i_rep in range(n_reps):
     set_random_seed(args.seed + i_rep)
@@ -76,12 +76,12 @@ def plot_line(result_name, label, color):
 
 def draw_figure(f_name, show_UC=False):
     plt.figure()
-    plot_line('train_risk', 'Train risk', 'blue')
-    plot_line('test_risk', 'Test risk', 'red')
-    plot_line('wpb_bnd', 'WPB bound', 'green')
-    plot_line('klpb_bnd', 'KLPB bound', 'purple')
+    plot_line('Train risk', 'Train risk', 'blue')
+    plot_line('Test risk', 'Test risk', 'red')
+    plot_line('WPB bound', 'WPB bound', 'green')
+    plot_line('KLPB bound', 'KLPB bound', 'purple')
     if show_UC:
-        plot_line('uc_bnd', 'UC bound', 'orange')
+        plot_line('UC bound', 'UC bound', 'orange')
     plt.legend()
     plt.grid(True)
     plt.xlabel('Number of samples')
@@ -111,5 +111,5 @@ with pandas.option_context('display.max_rows', None, 'display.max_columns', None
 
 with open(os.path.join(base_path, file_name) + 'txt', 'w') as f:
     f.write(str(args))
-    f.write('-' * 100)
+    f.write('\n' + '-' * 100 + '\n')
     f.write(df.style.to_latex())
