@@ -49,7 +49,7 @@ set_default_plot_params()
 n_reps = 20
 n_samp_grid = [100, 200, 300, 400]
 n_grid = len(n_samp_grid)
-results_labels = {'Train risk', 'Test risk', 'WPB bound', 'KLPB bound', 'UC bound'}
+results_labels = {'Train risk', 'UC bound', 'WPB bound', 'KLPB bound', 'Test risk'}
 results = {label: np.zeros((n_grid, n_reps)) for label in results_labels}
 for i_rep in range(n_reps):
     set_random_seed(args.seed + i_rep)
@@ -78,11 +78,11 @@ def plot_line(result_name, label, color):
 def draw_figure(f_name, show_UC=False):
     plt.figure()
     plot_line('Train risk', 'Train risk', 'blue')
-    plot_line('Test risk', 'Test risk', 'red')
-    plot_line('WPB bound', 'WPB bound', 'green')
-    plot_line('KLPB bound', 'KLPB bound', 'purple')
     if show_UC:
         plot_line('UC bound', 'UC bound', 'orange')
+    plot_line('WPB bound', 'WPB bound', 'green')
+    plot_line('KLPB bound', 'KLPB bound', 'purple')
+    plot_line('Test risk', 'Test risk', 'red')
     plt.legend()
     plt.grid(True)
     plt.xlabel('Number of samples')
@@ -97,21 +97,23 @@ draw_figure(f_name=file_name)
 draw_figure(f_name=file_name + '_UC', show_UC=True)
 
 # ---------------------------------------------------------------------------------------#
-fields_dict = {"# train samples": n_samp_grid}
+columns_dict = {}
 for label in results_labels:
     means = mean_results[label]
     stds = std_results[label]
-    field_list = []
+    column_vals = []
     for i in range(len(means)):
-        field_list.append(f'{means[i]:9.4f} ({stds[i]:5.4f})')
-    fields_dict[f"{label}"] = field_list
+        column_vals.append(f'{means[i]:9.4f} ({stds[i]:5.4f})')
+    columns_dict[f"{label}"] = column_vals
+# sort labels:
+fields_dict = {r"\# train samples": n_samp_grid} | {key: columns_dict[key] for key in results_labels}
 df = pandas.DataFrame(fields_dict)
-df.set_index("# train samples", inplace=True)
+df.set_index(r"\# train samples", inplace=True, drop=False)
 with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
     print(df)
 
 with open(os.path.join(base_path, file_name) + '.txt', 'w') as f:
     f.write(str(args))
     f.write('\n' + '-' * 100 + '\n')
-    df.rename(columns={"# train samples": r"\# train samples"})
     f.write(df.style.to_latex())
+
