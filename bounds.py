@@ -1,5 +1,6 @@
 from math import sqrt, log, pi
 
+import numpy as np
 import torch
 from torch import tensor
 
@@ -23,11 +24,13 @@ def wasserstein_gauss_proj(mu_q: tensor, sigma_q: tensor, mu_p: tensor, sigma_p:
                            r: float) -> tensor:
     assert mu_q.ndim == 1
     assert mu_q.shape[0] == d
-    w_bnd = torch.sqrt(torch.sum((mu_q - mu_p) ** 2) + d * (sigma_q - sigma_p) ** 2)
-    w_bnd += sqrt(pi / 2) * sigma_q * torch.erfc(
-        (r - torch.sqrt(torch.sum(mu_q ** 2) + d * sigma_q ** 2)) / (sqrt(2) * sigma_q)) \
-            + sqrt(pi / 2) * sigma_p * torch.erfc(
-        (r - torch.sqrt(torch.sum(mu_p ** 2) + d * sigma_p ** 2)) / (sqrt(2) * sigma_p))
+    mu_dist_sqr = torch.sum((mu_q - mu_p) ** 2)
+    w_bnd = torch.sqrt(mu_dist_sqr + d * (sigma_q - sigma_p) ** 2)
+    if sigma_p > 0:
+        w_bnd = w_bnd + sqrt(pi / 2) * sigma_q * torch.erfc(
+            (r - torch.sqrt(torch.sum(mu_q ** 2) + d * sigma_q ** 2)) / (sqrt(2) * sigma_q)) \
+                + sqrt(pi / 2) * sigma_p * torch.erfc(
+            (r - torch.sqrt(torch.sum(mu_p ** 2) + d * sigma_p ** 2)) / (sqrt(2) * sigma_p))
     return w_bnd
 
 
@@ -43,6 +46,8 @@ def wpb_bound(m: int, delta: float, mu_q: tensor, sigma_q: tensor, mu_p: tensor,
 
 def kl_pb_bound(m: int, delta: float, mu_q: tensor, sigma_q: tensor, mu_p: tensor, sigma_p: tensor, d: int) -> tensor:
     assert m > 1
+    if sigma_p == 0:
+        return np.Infinity
     kl = torch.sum((mu_q - mu_p)**2) / (2 * sigma_p**2) \
           + d * (log(sigma_p / sigma_q) + sigma_q**2 / (2 * sigma_p**2) - 0.5)
     bnd = torch.sqrt((kl + log(2 * m / delta)) / (2 * (m - 1)))

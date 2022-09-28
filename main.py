@@ -10,7 +10,7 @@ import torch
 
 from learn import run_learning
 from utils import set_device, set_default_plot_params, save_fig, set_random_seed
-
+torch.autograd.set_detect_anomaly(True)
 # ---------------------------------------------------------------------------------------#
 parser = argparse.ArgumentParser()
 parser.add_argument('--n_epochs', type=int, default=300, metavar='N',
@@ -23,7 +23,9 @@ parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--sigma_P', type=float, default=0.01, metavar='N',
                     help='STD of the prior distribution')
-parser.add_argument('--optim_objective', type=str, default='klpb_risk_bound', metavar='N',
+parser.add_argument('--sigma_Q', type=float, default=0.001, metavar='N',
+                    help='STD of the posterior distribution')
+parser.add_argument('--optim_objective', type=str, default='wpb_risk_bound', metavar='N',
                     help='Optimization objective (wpb_risk_bound / klpb_risk_bound / empirical_risk)')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -34,10 +36,8 @@ args.r = 1.
 args.g_vec_max_norm = 0.05
 args.x_max_norm = 0.05
 args.noise_max_norm = 200.
-args.sigma_Q = 1e-3
 args.mu_Q_max_norm = 0.05
 args.mu_P = torch.zeros(args.d)
-# args.sigma_P = 1e-2  # 1e-4
 args.batch_size = 256
 args.delta = 0.05
 args.n_train_samp = 0
@@ -82,7 +82,8 @@ def draw_figure(f_name, show_UC=False):
     if show_UC:
         plot_line('UC bound', 'UC bound', 'orange')
     plot_line('WPB bound', 'WPB bound', 'green')
-    plot_line('KLPB bound', 'KLPB bound', 'purple')
+    if args.sigma_P > 0:
+        plot_line('KLPB bound', 'KLPB bound', 'purple')
     plt.legend()
     plt.grid(True)
     plt.xlabel('Number of samples')
@@ -92,7 +93,7 @@ def draw_figure(f_name, show_UC=False):
     plt.show()
 
 
-file_name = f'{datetime.now().strftime("%Y%m%d-%H%M%S")}_sigmaP_{args.sigma_P}'
+file_name = f'{datetime.now().strftime("%Y%m%d-%H%M%S")}_sigmaP_{args.sigma_P}'.replace('.', '_')
 draw_figure(f_name=file_name, show_UC=True)
 
 # ---------------------------------------------------------------------------------------#
