@@ -26,10 +26,11 @@ def wasserstein_gauss_proj(mu_q: tensor, sigma_q: tensor, mu_p: tensor, sigma_p:
     assert mu_q.shape[0] == d
     mu_dist_sqr = torch.sum((mu_q - mu_p) ** 2)
     w_bnd = torch.sqrt(mu_dist_sqr + d * (sigma_q - sigma_p) ** 2)
-    if sigma_p > 0:
+    if sigma_q > 0:
         w_bnd = w_bnd + sqrt(pi / 2) * sigma_q * torch.erfc(
-            (r - torch.sqrt(torch.sum(mu_q ** 2) + d * sigma_q ** 2)) / (sqrt(2) * sigma_q)) \
-                + sqrt(pi / 2) * sigma_p * torch.erfc(
+            (r - torch.sqrt(torch.sum(mu_q ** 2) + d * sigma_q ** 2)) / (sqrt(2) * sigma_q))
+    if sigma_p > 0:
+        w_bnd = w_bnd + sqrt(pi / 2) * sigma_p * torch.erfc(
             (r - torch.sqrt(torch.sum(mu_p ** 2) + d * sigma_p ** 2)) / (sqrt(2) * sigma_p))
     return w_bnd
 
