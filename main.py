@@ -35,8 +35,8 @@ args.d = 10
 args.r = 1.
 args.g_vec_max_norm = 0.1
 args.x_max_norm = 0.1
-args.noise_min = -0.1
-args.noise_max = 0.1
+args.noise_min = -0.5
+args.noise_max = 0.5
 args.mu_Q_max_norm = 0.1
 args.mu_P = torch.zeros(args.d)
 args.batch_size = 256
@@ -47,7 +47,7 @@ args.n_samp_test = 10000
 set_random_seed(args.seed)
 set_default_plot_params()
 # ---------------------------------------------------------------------------------------#
-n_reps = 20
+n_reps = 10
 n_samp_grid = [100, 200, 300, 400]
 n_grid = len(n_samp_grid)
 results_labels = ['Train risk', 'Test risk', 'UC bound', 'WPB bound', 'KLPB bound']
