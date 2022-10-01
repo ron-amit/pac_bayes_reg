@@ -14,4 +14,3 @@ Tested on Python 3.10.4, conda environment with:
 * python main.py --sigma_P 0.01   --sigma_Q 0.001  --optim_objective klpb_risk_bound
 * python main.py --sigma_P 0.0001 --sigma_Q 0.001  --optim_objective klpb_risk_bound
 * python main.py --sigma_P 0.     --sigma_Q 0.     --optim_objective wpb_risk_bound
-* 

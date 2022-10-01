@@ -1,0 +1,13 @@
+Namespace(n_epochs=300, no_cuda=False, seed=2, log_interval=200, sigma_P=0.0001, sigma_Q=0.001, optim_objective='klpb_risk_bound', cuda=True, device=device(type='cuda'), d=10, r=1.0, g_vec_max_norm=0.1, x_max_norm=0.1, noise_min=-0.5, noise_max=0.5, mu_Q_max_norm=0.1, mu_P=tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]), batch_size=256, delta=0.05, n_train_samp=400, n_samp_test=10000)
+----------------------------------------------------------------------------------------------------
+\begin{tabular}{llllll}
+\toprule
+ & Train risk & Test risk & UC bound & WPB bound & KLPB bound \\
+\# train samples &  &  &  &  &  \\
+\midrule
+100 &    0.0211 (0.0010) &    0.0208 (0.0001) &    6.6176 (0.0010) &    0.7569 (0.0010) &    1.5787 (0.0010) \\
+200 &    0.0206 (0.0009) &    0.0208 (0.0001) &    4.6850 (0.0009) &    0.5424 (0.0009) &    1.1199 (0.0009) \\
+300 &    0.0214 (0.0006) &    0.0209 (0.0001) &    3.8298 (0.0006) &    0.4482 (0.0006) &    0.9186 (0.0006) \\
+400 &    0.0205 (0.0005) &    0.0208 (0.0001) &    3.3187 (0.0005) &    0.3906 (0.0005) &    0.7974 (0.0005) \\
+\bottomrule
+\end{tabular}
