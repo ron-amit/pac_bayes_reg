@@ -8,7 +8,7 @@ from utils import to_device
 
 
 def run_learning(args):
-    task = LearningTask(args.d, args.g_vec_max_norm, args.x_max_norm, args.noise_max_norm)
+    task = LearningTask(args.d, args.g_vec_max_norm, args.x_max_norm, args.noise_std)
     model = PacBayesLinReg(args.d, args.r, args.mu_Q_max_norm, args.sigma_Q, args.mu_P, args.sigma_P).to(args.device)
     # optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
